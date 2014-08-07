@@ -1,0 +1,20 @@
+{
+  "name": "todomvc-vanillajs",
+  "version": "0.0.0",
+  "description": "> JavaScript® (often shortened to JS) is a lightweight, interpreted, object-oriented language with first-class functions, most known as the scripting language for Web pages, but used in many non-browser environments as well such as node.js or Apache CouchDB.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test/integration.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "selenium-webdriver": "^2.42.1",
+    "mocha": "^1.21.4",
+    "selenium-chromedriver": "~0.0.2"
+  },
+  "private": true
+}
