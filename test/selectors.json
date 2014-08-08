@@ -1,0 +1,11 @@
+{
+  "create": "#new-todo",
+  "count": "#todo-count",
+  "item": {
+     "container": "#todo-list li",
+     "label": "#todo-list li label",
+     "destroy": ".destroy",
+     "toggle": ".toggle",
+     "completed": ".completed"
+   }
+}
