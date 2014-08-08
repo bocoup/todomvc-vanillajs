@@ -7,7 +7,22 @@ var chrome = require('selenium-webdriver/chrome');
 var chromeDriver = require('selenium-chromedriver');
 
 var port = process.env.NODE_TEST_PORT || 8002;
-var selectors = require('./selectors.json');
+
+function makeSelectors(obj) {
+  var selectors = {};
+
+  Object.keys(obj).forEach(function(key) {
+    var value = obj[key];
+    if (typeof value === 'string') {
+      selectors[key] = webdriver.By.css(value);
+    } else {
+      selectors[key] = makeSelectors(value);
+    }
+  });
+
+  return selectors;
+}
+var selectors = makeSelectors(require('./selectors.json'));
 
 before(function(done) {
   require('./server')(__dirname + '/..', port, done);
@@ -35,12 +50,12 @@ afterEach(function() {
 
 describe('Creation', function(done) {
   beforeEach(function() {
-    return this.driver.findElement(webdriver.By.css(selectors.create))
+    return this.driver.findElement(selectors.create)
       .sendKeys('buy stapler', webdriver.Key.ENTER);
   });
 
   it('appends a list item', function() {
-    return this.driver.findElement(webdriver.By.css(selectors.item.container))
+    return this.driver.findElement(selectors.item.container)
       .getText()
       .then(function(text) {
         assert.equal(text, 'buy stapler');
@@ -48,7 +63,7 @@ describe('Creation', function(done) {
   });
 
   it('updates the remaining item count', function() {
-    return this.driver.findElement(webdriver.By.css(selectors.count))
+    return this.driver.findElement(selectors.count)
       .getText()
       .then(function(text) {
         assert(/1\s+item\s+left/i.test(text));
@@ -62,7 +77,7 @@ describe('Creation', function(done) {
       .then(function(url) {
         return driver.get(url);
       }).then(function() {
-        driver.findElement(webdriver.By.css(selectors.item.container))
+        driver.findElement(selectors.item.container)
           .getText()
           .then(function(text) {
             assert.equal(text, 'buy stapler');
@@ -75,10 +90,10 @@ describe('Deletion', function() {
   beforeEach(function() {
     var driver = this.driver;
 
-    return driver.findElement(webdriver.By.css(selectors.create))
+    return driver.findElement(selectors.create)
       .sendKeys('buy stapler', webdriver.Key.ENTER)
       .then(function() {
-        return driver.findElement(webdriver.By.css(selectors.item.container))
+        return driver.findElement(selectors.item.container)
           .then(function(elem) {
             return driver.actions()
               .mouseMove(elem)
@@ -87,22 +102,21 @@ describe('Deletion', function() {
                 return elem;
               });
           }).then(function(elem) {
-            return elem.findElement(webdriver.By.css(selectors.item.destroy))
+            return elem.findElement(selectors.item.destroy)
               .click();
           });
       });
   });
 
   it('removes the list item', function() {
-    var selector = webdriver.By.css(selectors.item.container);
-    return this.driver.isElementPresent(selector)
+    return this.driver.isElementPresent(selectors.item.container)
       .then(function(isPresent) {
         assert(!isPresent);
       });
   });
 
   it('hides the remaining item count', function() {
-    return this.driver.findElement(webdriver.By.css(selectors.count))
+    return this.driver.findElement(selectors.count)
       .isDisplayed()
       .then(function(isDisplayed) {
         assert(!isDisplayed);
@@ -114,11 +128,10 @@ describe('Updating', function() {
   beforeEach(function() {
     var ctx = this;
 
-    return this.driver.findElement(webdriver.By.css(selectors.create))
+    return this.driver.findElement(selectors.create)
       .sendKeys('buy stapler', webdriver.Key.ENTER)
       .then(function() {
-        var selector = webdriver.By.css(selectors.item.container);
-        return ctx.driver.findElement(selector);
+        return ctx.driver.findElement(selectors.item.container);
       })
       .then(function(elem) {
         ctx.newTodo = elem;
@@ -133,7 +146,7 @@ describe('Updating', function() {
       .sendKeys(webdriver.Key.BACK_SPACE, 'e', webdriver.Key.ENTER)
       .perform()
       .then(function() {
-        return driver.findElement(webdriver.By.css(selectors.item.container))
+        return driver.findElement(selectors.item.container)
           .getText();
       }).then(function(text) {
         assert.equal(text, 'buy staplee');
@@ -144,11 +157,10 @@ describe('Updating', function() {
     beforeEach('supports task completion', function() {
       var driver = this.driver;
 
-      return this.driver.findElement(webdriver.By.css(selectors.item.toggle))
+      return this.driver.findElement(selectors.item.toggle)
         .click()
         .then(function() {
-          var selector = webdriver.By.css(selectors.item.completed);
-          return driver.isElementPresent(selector)
+          return driver.isElementPresent(selectors.item.completed)
             .then(function(isPresent) {
               assert(isPresent);
             });
@@ -156,7 +168,7 @@ describe('Updating', function() {
     });
 
     it('updates the remaining item count', function() {
-      return this.driver.findElement(webdriver.By.css(selectors.count))
+      return this.driver.findElement(selectors.count)
         .getText()
         .then(function(text) {
           assert(/^\s*0 items left\s*$/i, text);
