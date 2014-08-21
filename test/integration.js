@@ -36,3 +36,19 @@ it('includes the application name in the page title', function() {
     assert(/TodoMVC/.test(titleText));
   });
 });
+
+it('adds new items to the list', function() {
+  var driver = this.driver;
+  return driver.findElement(webdriver.By.css('#new-todo'))
+    .then(function(textInput) {
+      return textInput.sendKeys('clean Batmobile', webdriver.Key.ENTER);
+    }).then(function() {
+      return driver.findElements(webdriver.By.css('#todo-list li'));
+    }).then(function(items) {
+      assert.equal(items.length, 1);
+
+      return items[0].getText();
+    }).then(function(text) {
+      assert.equal(text, 'clean Batmobile');
+    });
+});
