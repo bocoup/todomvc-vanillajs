@@ -4,7 +4,7 @@ var assert = require('assert');
 
 var webdriver = require('selenium-webdriver');
 var chrome = require('selenium-webdriver/chrome');
-var chromeDriver = require('selenium-chromedriver');
+var chromeDriver = require('chromedriver');
 
 var port = process.env.NODE_TEST_PORT || 8002;
 
