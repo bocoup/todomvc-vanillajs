@@ -39,34 +39,40 @@ it('includes the application name in the page title', function() {
   });
 });
 
-it('adds new items to the list', function() {
-  var driver = this.driver;
-  return driver.findElement(makeSelector('#new-todo'))
-    .then(function(textInput) {
-      return textInput.sendKeys('clean Batmobile', keys.ENTER);
-    }).then(function() {
-      return driver.findElements(makeSelector('#todo-list li'));
-    }).then(function(items) {
-      assert.equal(items.length, 1);
+describe('item creation', function() {
 
-      return items[0].getText();
-    }).then(function(text) {
-      assert.equal(text, 'clean Batmobile');
-    });
-});
+  beforeEach(function() {
+    // this will run before the tests in this `describe` block
+    var driver = this.driver;
+    return driver.findElement(makeSelector('#new-todo'))
+      .then(function(textInput) {
+        return textInput.sendKeys('clean Batmobile', keys.ENTER);
+      });
+  });
 
-it('updates "items left" count when new item is added', function() {
-  var driver = this.driver;
-  return driver.findElement(makeSelector('#new-todo'))
-    .then(function(textInput) {
-      return textInput.sendKeys('clean Batmobile', keys.ENTER);
-    }).then(function() {
-      return driver.findElement(makeSelector('#todo-count'));
-    }).then(function(element) {
-      return element.getText();
-    }).then(function(text) {
-      var match = text.match(/\b(\d+)\b/);
-      assert(match);
-      assert.equal(match[1], '1');
-    });
+  it('adds new items to the list', function() {
+    var driver = this.driver;
+
+    return driver.findElements(makeSelector('#todo-list li'))
+      .then(function(items) {
+        assert.equal(items.length, 1);
+
+        return items[0].getText();
+      }).then(function(text) {
+        assert.equal(text, 'clean Batmobile');
+      });
+  });
+
+  it('updates "items left" count when new item is added', function() {
+    var driver = this.driver;
+
+    return driver.findElement(makeSelector('#todo-count'))
+      .then(function(element) {
+        return element.getText();
+      }).then(function(text) {
+        var match = text.match(/\b(\d+)\b/);
+        assert(match);
+        assert.equal(match[1], '1');
+      });
+  });
 });
