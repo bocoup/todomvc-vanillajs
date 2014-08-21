@@ -6,6 +6,8 @@ var webdriver = require('selenium-webdriver');
 var chrome = require('selenium-webdriver/chrome');
 var chromeDriver = require('chromedriver');
 
+var makeSelector = webdriver.By.css;
+var keys = webdriver.Key;
 var port = process.env.NODE_TEST_PORT || 8002;
 
 before(function(done) {
@@ -39,11 +41,11 @@ it('includes the application name in the page title', function() {
 
 it('adds new items to the list', function() {
   var driver = this.driver;
-  return driver.findElement(webdriver.By.css('#new-todo'))
+  return driver.findElement(makeSelector('#new-todo'))
     .then(function(textInput) {
-      return textInput.sendKeys('clean Batmobile', webdriver.Key.ENTER);
+      return textInput.sendKeys('clean Batmobile', keys.ENTER);
     }).then(function() {
-      return driver.findElements(webdriver.By.css('#todo-list li'));
+      return driver.findElements(makeSelector('#todo-list li'));
     }).then(function(items) {
       assert.equal(items.length, 1);
 
