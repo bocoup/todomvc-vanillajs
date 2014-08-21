@@ -54,3 +54,19 @@ it('adds new items to the list', function() {
       assert.equal(text, 'clean Batmobile');
     });
 });
+
+it('updates "items left" count when new item is added', function() {
+  var driver = this.driver;
+  return driver.findElement(makeSelector('#new-todo'))
+    .then(function(textInput) {
+      return textInput.sendKeys('clean Batmobile', keys.ENTER);
+    }).then(function() {
+      return driver.findElement(makeSelector('#todo-count'));
+    }).then(function(element) {
+      return element.getText();
+    }).then(function(text) {
+      var match = text.match(/\b(\d+)\b/);
+      assert(match);
+      assert.equal(match[1], '1');
+    });
+});
