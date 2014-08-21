@@ -115,4 +115,39 @@ describe('item modification', function() {
         assert.equal(text, 'clean Batmobil and other things');
       });
   });
+
+  describe('item deletion', function() {
+    beforeEach(function() {
+      var newItem = this.newItem;
+      return this.driver.actions()
+        .mouseMove(this.newItem)
+        .perform()
+        .then(function() {
+          return newItem.findElement(makeSelector('.destroy'));
+        }).then(function(deleteBtn) {
+          return deleteBtn.click();
+        })
+    });
+
+    it('removes the item from the list', function() {
+      var driver = this.driver;
+
+      return driver.findElements(makeSelector('#todo-list li'))
+        .then(function(items) {
+          assert.equal(items.length, 0);
+        });
+    });
+
+    it('decrements the "remaining item" count', function() {
+      var driver = this.driver;
+
+      return driver.findElement(makeSelector('#todo-count'))
+        .then(function(countEl) {
+          return countEl.isDisplayed();
+        }).then(function(isDisplayed) {
+          assert(!isDisplayed);
+        });
+    });
+
+  });
 });
