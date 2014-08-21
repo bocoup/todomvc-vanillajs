@@ -14,3 +14,25 @@ before(function(done) {
     new chrome.ServiceBuilder(chromeDriver.path).build()
   );
 });
+
+beforeEach(function() {
+  this.driver = new webdriver.Builder().
+     withCapabilities(webdriver.Capabilities.chrome()).
+     build();
+
+  this.timeout(0);
+
+  return this.driver.get('http://localhost:' + port);
+});
+
+afterEach(function() {
+  return this.driver.quit();
+});
+
+it('includes the application name in the page title', function() {
+  this.timeout(6000);
+
+  return this.driver.getTitle().then(function(titleText) {
+    assert(/TodoMVC/.test(titleText));
+  });
+});
