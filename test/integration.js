@@ -10,6 +10,15 @@ var makeSelector = webdriver.By.css;
 var keys = webdriver.Key;
 var port = process.env.NODE_TEST_PORT || 8002;
 
+function createItem() {
+  // this will run before the tests in this `describe` block
+  var driver = this.driver;
+  return driver.findElement(makeSelector('#new-todo'))
+    .then(function(textInput) {
+      return textInput.sendKeys('clean Batmobile', keys.ENTER);
+    });
+}
+
 before(function(done) {
   require('./server')(__dirname + '/..', port, done);
   chrome.setDefaultService(
@@ -41,14 +50,7 @@ it('includes the application name in the page title', function() {
 
 describe('item creation', function() {
 
-  beforeEach(function() {
-    // this will run before the tests in this `describe` block
-    var driver = this.driver;
-    return driver.findElement(makeSelector('#new-todo'))
-      .then(function(textInput) {
-        return textInput.sendKeys('clean Batmobile', keys.ENTER);
-      });
-  });
+  beforeEach(createItem);
 
   it('adds new items to the list', function() {
     var driver = this.driver;
@@ -73,6 +75,44 @@ describe('item creation', function() {
         var match = text.match(/\b(\d+)\b/);
         assert(match);
         assert.equal(match[1], '1');
+      });
+  });
+});
+
+describe('item modification', function() {
+
+  beforeEach(function() {
+    var driver = this.driver;
+    return createItem.call(this).then(function() {
+      return driver.findElement(makeSelector('#todo-list li'));
+    }).then(function(newItem) {
+      this.newItem = newItem;
+    }.bind(this));
+  });
+
+  it('allows users to complete items', function() {
+    var driver = this.driver;
+
+    return driver.findElement(makeSelector('.toggle'))
+      .then(function(toggleEl) {
+        return toggleEl.click();
+      }).then(function() {
+        return driver.findElements(makeSelector('#todo-list .completed'))
+      }).then(function(completedItems) {
+        assert.equal(completedItems.length, 1);
+      });
+  });
+
+  it('allows users to update item text', function() {
+    var newItem = this.newItem;
+    return this.driver.actions()
+      .doubleClick(newItem)
+      .sendKeys(keys.BACK_SPACE, ' and other things', keys.ENTER)
+      .perform()
+      .then(function() {
+        return newItem.getText();
+      }).then(function(text) {
+        assert.equal(text, 'clean Batmobil and other things');
       });
   });
 });
