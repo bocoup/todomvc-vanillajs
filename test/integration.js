@@ -6,6 +6,7 @@ var webdriver = require('selenium-webdriver');
 var chrome = require('selenium-webdriver/chrome');
 var chromeDriver = require('chromedriver');
 
+var locators = require('./locators.json');
 var port = process.env.NODE_TEST_PORT || 8002;
 
 before(function(done) {
@@ -40,13 +41,13 @@ it('displays the correct page title', function() {
 describe('item creation', function() {
   beforeEach(function() {
     var driver = this.driver;
-    return this.driver.findElement(webdriver.By.css('#new-todo'))
+    return this.driver.findElement(webdriver.By.css(locators.newTodoInput))
       .then(function(el) {
         return el.sendKeys('order new SSD', webdriver.Key.ENTER);
       }).then(function() {
         return driver.wait(function() {
           // 1. get element
-          return driver.findElement(webdriver.By.css('#new-todo'))
+          return driver.findElement(webdriver.By.css(locators.newTodoInput))
             .then(function(el) {
               // 2. get element text
               return el.getAttribute('value');
@@ -62,7 +63,7 @@ describe('item creation', function() {
   it('appends new list items to Todo list', function() {
     var driver = this.driver;
 
-    return driver.findElement(webdriver.By.css('#todo-list label'))
+    return driver.findElement(webdriver.By.css(locators.todoItem.label))
       .then(function(el) {
         return el.getText();
       }).then(function(text) {
@@ -73,7 +74,7 @@ describe('item creation', function() {
   it('updates the "Remaining Items" counter', function() {
     var driver = this.driver;
 
-    return driver.findElement(webdriver.By.css('#todo-count'))
+    return driver.findElement(webdriver.By.css(locators.todoCount))
       .then(function(el) {
         return el.getText();
       }).then(function(text) {
@@ -90,13 +91,13 @@ describe('item deletion', function() {
   beforeEach(function() {
     var driver = this.driver;
 
-    return this.driver.findElement(webdriver.By.css('#new-todo'))
+    return this.driver.findElement(webdriver.By.css(locators.newTodoInput))
       .then(function(el) {
         return el.sendKeys('order new SSD', webdriver.Key.ENTER);
       }).then(function() {
         return driver.wait(function() {
           // 1. get element
-          return driver.findElement(webdriver.By.css('#new-todo'))
+          return driver.findElement(webdriver.By.css(locators.newTodoInput))
             .then(function(el) {
               // 2. get element text
               return el.getAttribute('value');
@@ -107,7 +108,7 @@ describe('item deletion', function() {
             });
         });
       }).then(function() {
-        return driver.findElement(webdriver.By.css('#todo-list label'));
+        return driver.findElement(webdriver.By.css(locators.todoItem.label));
       }).then(function(el) {
         return driver.actions()
           .mouseMove(el)
@@ -121,7 +122,9 @@ describe('item deletion', function() {
         //    ii. return the promise created by `isDisplayed`
         // 2. return the promise created by `wait`
         var pollingPromise = driver.wait(function() {
-          return driver.findElement(webdriver.By.css('.destroy'))
+          return driver.findElement(
+            webdriver.By.css(locators.todoItem.destroy)
+          )
             .then(function(el) {
               return el.isDisplayed();
             }).then(function(isDisplayed) {
@@ -131,7 +134,7 @@ describe('item deletion', function() {
 
         return pollingPromise;
       }).then(function() {
-        return driver.findElement(webdriver.By.css('.destroy'));
+        return driver.findElement(webdriver.By.css(locators.todoItem.destroy));
       }).then(function(el) {
         return el.click();
       }).then(function() {
@@ -141,8 +144,9 @@ describe('item deletion', function() {
         //               variable! (i.e. `var driver = this.driver;`)
 
         return driver.wait(function() {
-          return driver.isElementPresent(webdriver.By.css('#todo-list label'))
-            .then(function(isPresent) {
+          return driver.isElementPresent(
+            webdriver.By.css(locators.todoItem.label)
+          ).then(function(isPresent) {
               return !isPresent;
             });
         });
@@ -150,13 +154,13 @@ describe('item deletion', function() {
   });
 
   it('removes list item from Todo list', function() {
-    return this.driver.findElements(webdriver.By.css('#todo-list label'))
+    return this.driver.findElements(webdriver.By.css(locators.todoItem.label))
       .then(function(elems) {
         assert.equal(elems.length, 0);
       });
   });
   it('hides the "Remaining Items" counter when no items remain', function() {
-    return this.driver.findElement(webdriver.By.css('#todo-count'))
+    return this.driver.findElement(webdriver.By.css(locators.todoCount))
       .then(function(el) {
         return el.isDisplayed();
       }).then(function(isDisplayed) {
@@ -169,13 +173,13 @@ describe('item modification', function() {
   beforeEach(function() {
     var driver = this.driver;
 
-    return this.driver.findElement(webdriver.By.css('#new-todo'))
+    return this.driver.findElement(webdriver.By.css(locators.newTodoInput))
       .then(function(el) {
         return el.sendKeys('order new SSD', webdriver.Key.ENTER);
       }).then(function() {
         return driver.wait(function() {
           // 1. get element
-          return driver.findElement(webdriver.By.css('#new-todo'))
+          return driver.findElement(webdriver.By.css(locators.newTodoInput))
             .then(function(el) {
               // 2. get element text
               return el.getAttribute('value');
@@ -187,10 +191,10 @@ describe('item modification', function() {
         });
       });
   });
-  it.only('supports task name modification', function() {
+  it('supports task name modification', function() {
     var driver = this.driver;
 
-    return this.driver.findElement(webdriver.By.css('#todo-list label'))
+    return this.driver.findElement(webdriver.By.css(locators.todoItem.label))
       .then(function(newTodo) {
         return driver.actions()
           .doubleClick(newTodo)
@@ -198,13 +202,15 @@ describe('item modification', function() {
           .perform();
       }).then(function() {
         return driver.wait(function() {
-          return driver.userCanSee(webdriver.By.css('#todo-list input.edit'))
+          return driver.userCanSee(
+              webdriver.By.css(locators.todoItem.editInput)
+            )
             .then(function(userCanSee) {
               return !userCanSee;
             });
         });
       }).then(function() {
-        return driver.findElement(webdriver.By.css('#todo-list label'));
+        return driver.findElement(webdriver.By.css(locators.todoItem.label));
       }).then(function(el) {
         return el.getText();
       }).then(function(todoText) {

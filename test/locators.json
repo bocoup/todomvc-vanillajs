@@ -1,0 +1,9 @@
+{
+  "newTodoInput": "#new-todo",
+  "todoCount": "#todo-count",
+  "todoItem": {
+    "label": "#todo-list label",
+    "editInput": "#todo-list input.edit",
+    "destroy": ".destroy"
+  }
+}
