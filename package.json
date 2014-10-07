@@ -12,9 +12,9 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "selenium-webdriver": "^2.42.1",
+    "chromedriver": "^2.10.0-1",
     "mocha": "^1.21.4",
-    "selenium-chromedriver": "~0.0.2"
+    "selenium-webdriver": "^2.42.1"
   },
   "private": true
 }
