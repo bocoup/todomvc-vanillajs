@@ -6,6 +6,7 @@ var webdriver = require('selenium-webdriver');
 var chrome = require('selenium-webdriver/chrome');
 var chromeDriver = require('chromedriver');
 
+var TodoDriver = require('./todo-driver');
 var locators = require('./make-locators')(require('./locators.json'));
 var port = process.env.NODE_TEST_PORT || 8002;
 
@@ -17,22 +18,23 @@ before(function(done) {
 });
 
 beforeEach(function() {
-  var driver = this.driver = new webdriver.Builder()
+  var seleniumDriver = this.seleniumDriver = new webdriver.Builder()
     .withCapabilities(webdriver.Capabilities.firefox())
     .build();
+  var todoDriver = this.todoDriver = new TodoDriver(seleniumDriver);
 
   this.timeout(10 * 1000);
 
-  return driver.get('http://localhost:' + port);
+  return seleniumDriver.get('http://localhost:' + port);
 });
 
 afterEach(function() {
-  return this.driver.quit();
+  return this.seleniumDriver.quit();
 });
 
 it('displays the correct page title', function() {
   this.timeout(8000);
-  return this.driver.getTitle()
+  return this.seleniumDriver.getTitle()
     .then(function(pageTitle) {
       assert.equal(pageTitle, 'VanillaJS • TodoMVC');
     });
@@ -40,30 +42,13 @@ it('displays the correct page title', function() {
 
 describe('item creation', function() {
   beforeEach(function() {
-    var driver = this.driver;
-    return this.driver.findElement(locators.newTodoInput)
-      .then(function(el) {
-        return el.sendKeys('order new SSD', webdriver.Key.ENTER);
-      }).then(function() {
-        return driver.wait(function() {
-          // 1. get element
-          return driver.findElement(locators.newTodoInput)
-            .then(function(el) {
-              // 2. get element text
-              return el.getAttribute('value');
-            }).then(function(text) {
-              // 3. resolve with `true` if text is empty (the waiting is over).
-              //    Otherwise, resolve with `false`
-              return text === '';
-            });
-        });
-      });
+    return this.todoDriver.create('order new SSD');
   });
 
   it('appends new list items to Todo list', function() {
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    return driver.findElement(locators.todoItem.label)
+    return seleniumDriver.findElement(locators.todoItem.label)
       .then(function(el) {
         return el.getText();
       }).then(function(text) {
@@ -72,9 +57,9 @@ describe('item creation', function() {
   });
 
   it('updates the "Remaining Items" counter', function() {
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    return driver.findElement(locators.todoCount)
+    return seleniumDriver.findElement(locators.todoCount)
       .then(function(el) {
         return el.getText();
       }).then(function(text) {
@@ -89,15 +74,15 @@ describe('item creation', function() {
 
 describe('item deletion', function() {
   beforeEach(function() {
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    return this.driver.findElement(locators.newTodoInput)
+    return this.seleniumDriver.findElement(locators.newTodoInput)
       .then(function(el) {
         return el.sendKeys('order new SSD', webdriver.Key.ENTER);
       }).then(function() {
-        return driver.wait(function() {
+        return seleniumDriver.wait(function() {
           // 1. get element
-          return driver.findElement(locators.newTodoInput)
+          return seleniumDriver.findElement(locators.newTodoInput)
             .then(function(el) {
               // 2. get element text
               return el.getAttribute('value');
@@ -108,21 +93,21 @@ describe('item deletion', function() {
             });
         });
       }).then(function() {
-        return driver.findElement(locators.todoItem.label);
+        return seleniumDriver.findElement(locators.todoItem.label);
       }).then(function(el) {
-        return driver.actions()
+        return seleniumDriver.actions()
           .mouseMove(el)
           .perform();
       }).then(function() {
         // Ensure that the UI has updated in response to the "mouseover" event!
         // --> Ensure that the `destroy` element is visible
         //
-        // 1. Create a promise using `driver.wait`. Inside:
+        // 1. Create a promise using `seleniumDriver.wait`. Inside:
         //    i.  use `findElement` to get the `.destroy` element
         //    ii. return the promise created by `isDisplayed`
         // 2. return the promise created by `wait`
-        var pollingPromise = driver.wait(function() {
-          return driver.findElement(locators.todoItem.destroy)
+        var pollingPromise = seleniumDriver.wait(function() {
+          return seleniumDriver.findElement(locators.todoItem.destroy)
             .then(function(el) {
               return el.isDisplayed();
             }).then(function(isDisplayed) {
@@ -132,17 +117,17 @@ describe('item deletion', function() {
 
         return pollingPromise;
       }).then(function() {
-        return driver.findElement(locators.todoItem.destroy);
+        return seleniumDriver.findElement(locators.todoItem.destroy);
       }).then(function(el) {
         return el.click();
       }).then(function() {
         // use wait to pause until the label is not present
-        // methods to use: `driver.wait`, `driver.isElementPresent`
-        // Don't forget: store a reference to `this.driver` in a local
-        //               variable! (i.e. `var driver = this.driver;`)
+        // methods to use: `seleniumDriver.wait`, `seleniumDriver.isElementPresent`
+        // Don't forget: store a reference to `this.seleniumDriver` in a local
+        //               variable! (i.e. `var seleniumDriver = this.seleniumDriver;`)
 
-        return driver.wait(function() {
-          return driver.isElementPresent(locators.todoItem.label)
+        return seleniumDriver.wait(function() {
+          return seleniumDriver.isElementPresent(locators.todoItem.label)
             .then(function(isPresent) {
               return !isPresent;
             });
@@ -151,13 +136,13 @@ describe('item deletion', function() {
   });
 
   it('removes list item from Todo list', function() {
-    return this.driver.findElements(locators.todoItem.label)
+    return this.seleniumDriver.findElements(locators.todoItem.label)
       .then(function(elems) {
         assert.equal(elems.length, 0);
       });
   });
   it('hides the "Remaining Items" counter when no items remain', function() {
-    return this.driver.findElement(locators.todoCount)
+    return this.seleniumDriver.findElement(locators.todoCount)
       .then(function(el) {
         return el.isDisplayed();
       }).then(function(isDisplayed) {
@@ -168,15 +153,15 @@ describe('item deletion', function() {
 
 describe('item modification', function() {
   beforeEach(function() {
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    return this.driver.findElement(locators.newTodoInput)
+    return this.seleniumDriver.findElement(locators.newTodoInput)
       .then(function(el) {
         return el.sendKeys('order new SSD', webdriver.Key.ENTER);
       }).then(function() {
-        return driver.wait(function() {
+        return seleniumDriver.wait(function() {
           // 1. get element
-          return driver.findElement(locators.newTodoInput)
+          return seleniumDriver.findElement(locators.newTodoInput)
             .then(function(el) {
               // 2. get element text
               return el.getAttribute('value');
@@ -189,23 +174,23 @@ describe('item modification', function() {
       });
   });
   it('supports task name modification', function() {
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    return this.driver.findElement(locators.todoItem.label)
+    return this.seleniumDriver.findElement(locators.todoItem.label)
       .then(function(newTodo) {
-        return driver.actions()
+        return seleniumDriver.actions()
           .doubleClick(newTodo)
           .sendKeys('...now!', webdriver.Key.ENTER)
           .perform();
       }).then(function() {
-        return driver.wait(function() {
-          return driver.userCanSee(locators.todoItem.editInput)
+        return seleniumDriver.wait(function() {
+          return seleniumDriver.userCanSee(locators.todoItem.editInput)
             .then(function(userCanSee) {
               return !userCanSee;
             });
         });
       }).then(function() {
-        return driver.findElement(locators.todoItem.label);
+        return seleniumDriver.findElement(locators.todoItem.label);
       }).then(function(el) {
         return el.getText();
       }).then(function(todoText) {
@@ -215,14 +200,14 @@ describe('item modification', function() {
 });
 
 webdriver.WebDriver.prototype.userCanSee = function(locator) {
-  var driver = this;
+  var seleniumDriver = this;
 
   return this.isElementPresent(locator)
     .then(function(isPresent) {
       if (isPresent === false) {
         return false;
       }
-      return driver.getElement(locator)
+      return seleniumDriver.getElement(locator)
         .then(function(el) {
           return el.isDisplayed();
         });

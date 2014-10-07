@@ -2,15 +2,17 @@
 var webdriver = require('selenium-webdriver');
 
 function makeLocators(obj) {
+  var toReturn = {};
+
   Object.keys(obj).forEach(function(key) {
     if (typeof obj[key] === 'string') {
-      obj[key] = webdriver.By.css(obj[key]);
+      toReturn[key] = webdriver.By.css(obj[key]);
     } else {
-      makeLocators(obj[key]);
+      toReturn[key] = makeLocators(obj[key]);
     }
   });
 
-  return obj;
+  return toReturn;
 }
 
 module.exports = makeLocators;
