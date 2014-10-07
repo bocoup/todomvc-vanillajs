@@ -46,13 +46,19 @@ describe('item creation', function() {
   });
 
   it('appends new list items to Todo list', function() {
-    var seleniumDriver = this.seleniumDriver;
-
-    return seleniumDriver.findElement(locators.todoItem.label)
-      .then(function(el) {
-        return el.getText();
-      }).then(function(text) {
+    return this.todoDriver.readItem(0)
+      .then(function(text) {
         assert.equal(text, 'order new SSD');
+      });
+  });
+
+  it('inserts new items at the end of the list', function() {
+    var todoDriver = this.todoDriver;
+    return this.todoDriver.create('this is a new one')
+      .then(function() {
+        return todoDriver.readItem(1);
+      }).then(function(text) {
+        assert.equal(text, 'this is a new one');
       });
   });
 
@@ -75,70 +81,18 @@ describe('item creation', function() {
 describe('item deletion', function() {
   beforeEach(function() {
     var seleniumDriver = this.seleniumDriver;
+    var todoDriver = this.todoDriver;
 
-    return this.seleniumDriver.findElement(locators.newTodoInput)
-      .then(function(el) {
-        return el.sendKeys('order new SSD', webdriver.Key.ENTER);
-      }).then(function() {
-        return seleniumDriver.wait(function() {
-          // 1. get element
-          return seleniumDriver.findElement(locators.newTodoInput)
-            .then(function(el) {
-              // 2. get element text
-              return el.getAttribute('value');
-            }).then(function(text) {
-              // 3. resolve with `true` if text is empty (the waiting is over).
-              //    Otherwise, resolve with `false`
-              return text === '';
-            });
-        });
-      }).then(function() {
-        return seleniumDriver.findElement(locators.todoItem.label);
-      }).then(function(el) {
-        return seleniumDriver.actions()
-          .mouseMove(el)
-          .perform();
-      }).then(function() {
-        // Ensure that the UI has updated in response to the "mouseover" event!
-        // --> Ensure that the `destroy` element is visible
-        //
-        // 1. Create a promise using `seleniumDriver.wait`. Inside:
-        //    i.  use `findElement` to get the `.destroy` element
-        //    ii. return the promise created by `isDisplayed`
-        // 2. return the promise created by `wait`
-        var pollingPromise = seleniumDriver.wait(function() {
-          return seleniumDriver.findElement(locators.todoItem.destroy)
-            .then(function(el) {
-              return el.isDisplayed();
-            }).then(function(isDisplayed) {
-              return isDisplayed;
-            });
-        });
-
-        return pollingPromise;
-      }).then(function() {
-        return seleniumDriver.findElement(locators.todoItem.destroy);
-      }).then(function(el) {
-        return el.click();
-      }).then(function() {
-        // use wait to pause until the label is not present
-        // methods to use: `seleniumDriver.wait`, `seleniumDriver.isElementPresent`
-        // Don't forget: store a reference to `this.seleniumDriver` in a local
-        //               variable! (i.e. `var seleniumDriver = this.seleniumDriver;`)
-
-        return seleniumDriver.wait(function() {
-          return seleniumDriver.isElementPresent(locators.todoItem.label)
-            .then(function(isPresent) {
-              return !isPresent;
-            });
-        });
+    return this.todoDriver.create('order new SSD')
+      .then(function() {
+        return todoDriver.delete(0);
       });
   });
 
   it('removes list item from Todo list', function() {
-    return this.seleniumDriver.findElements(locators.todoItem.label)
-      .then(function(elems) {
-        assert.equal(elems.length, 0);
+    return this.todoDriver.countItems()
+      .then(function(itemCount) {
+        assert.equal(itemCount, 0);
       });
   });
   it('hides the "Remaining Items" counter when no items remain', function() {
@@ -155,26 +109,11 @@ describe('item modification', function() {
   beforeEach(function() {
     var seleniumDriver = this.seleniumDriver;
 
-    return this.seleniumDriver.findElement(locators.newTodoInput)
-      .then(function(el) {
-        return el.sendKeys('order new SSD', webdriver.Key.ENTER);
-      }).then(function() {
-        return seleniumDriver.wait(function() {
-          // 1. get element
-          return seleniumDriver.findElement(locators.newTodoInput)
-            .then(function(el) {
-              // 2. get element text
-              return el.getAttribute('value');
-            }).then(function(text) {
-              // 3. resolve with `true` if text is empty (the waiting is over).
-              //    Otherwise, resolve with `false`
-              return text === '';
-            });
-        });
-      });
+    return this.todoDriver.create('order new SSD');
   });
   it('supports task name modification', function() {
     var seleniumDriver = this.seleniumDriver;
+    var todoDriver = this.todoDriver;
 
     return this.seleniumDriver.findElement(locators.todoItem.label)
       .then(function(newTodo) {
@@ -190,11 +129,52 @@ describe('item modification', function() {
             });
         });
       }).then(function() {
-        return seleniumDriver.findElement(locators.todoItem.label);
-      }).then(function(el) {
-        return el.getText();
+        return todoDriver.readItem(0);
       }).then(function(todoText) {
         assert.equal(todoText, 'order new SSD...now!');
+      });
+  });
+});
+
+describe.only('congrats', function() {
+  beforeEach(function() {
+    var todoDriver = this.todoDriver;
+
+    return todoDriver.create('first')
+      .then(function() {
+        return todoDriver.create('second');
+      }).then(function() {
+        return todoDriver.create('third');
+      }).then(function() {
+        return todoDriver.complete(2);
+      }).then(function() {
+        return todoDriver.complete(0);
+      }).then(function() {
+        return todoDriver.isCongratulating();
+      }).then(function(isCongratulating) {
+        assert.equal(isCongratulating, false);
+      });
+  });
+
+  it('should congratulate user when they complete the last item', function() {
+    var todoDriver = this.todoDriver;
+
+    return todoDriver.complete(1)
+      .then(function() {
+        return todoDriver.isCongratulating();
+      }).then(function(isCongratulating) {
+        assert(isCongratulating);
+      });
+  });
+
+  it('should congratulate user when they remove the last item', function() {
+    var todoDriver = this.todoDriver;
+
+    return todoDriver.delete(1)
+      .then(function() {
+        return todoDriver.isCongratulating();
+      }).then(function(isCongratulating) {
+        assert(isCongratulating);
       });
   });
 });

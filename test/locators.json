@@ -1,9 +1,12 @@
 {
   "newTodoInput": "#new-todo",
   "todoCount": "#todo-count",
+  "todoList": "#todo-list",
   "todoItem": {
+    "container": "#todo-list li",
     "label": "#todo-list label",
     "editInput": "#todo-list input.edit",
-    "destroy": ".destroy"
+    "destroy": ".destroy",
+    "toggle": "#todo-list .toggle"
   }
 }

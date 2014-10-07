@@ -111,6 +111,11 @@
                 that.$main.style.display = that.$footer.style.display = parameter.visible ? 'block' : 'none';
             },
             toggleAll: function () {
+                if (parameter.checked) {
+                    that.$todoList.classList.add('congrats');
+                } else {
+                    that.$todoList.classList.remove('congrats');
+                }
                 that.$toggleAll.checked = parameter.checked;
             },
             setFilter: function () {
