@@ -181,19 +181,8 @@ describe('item updating', function() {
     // 3. `seleniumDriver.findElements` to get an array of all *completed* tasks
     // 4. `assert.equal` to verify that there are the correct number of
     //    completed tasks
-    return seleniumDriver.findElement(regions.todoItem.toggle)
-      .then(function(checkbox) {
-        return checkbox.click();
-      }).then(function() {
-        return seleniumDriver.wait(function() {
-          return seleniumDriver.findElement(regions.todoItem.toggle)
-            .then(function(checkbox) {
-              return checkbox.getAttribute('checked');
-            }).then(function(value) {
-              return value === 'true';
-            });
-        });
-      }).then(function() {
+    return this.todoDriver.complete(0)
+      .then(function() {
         return seleniumDriver.findElements(regions.todoItem.completed);
       }).then(function(completedListItems) {
         assert.equal(completedListItems.length, 1);

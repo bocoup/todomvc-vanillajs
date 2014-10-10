@@ -105,3 +105,22 @@ TodoDriver.prototype.delete = function(index) {
       });
     });
 };
+
+/**
+ */
+TodoDriver.prototype.complete = function(index) {
+  var seleniumDriver = this.seleniumDriver;
+  return seleniumDriver.findElements(regions.todoItem.toggle)
+    .then(function(checkboxes) {
+      return checkboxes[index].click();
+    }).then(function() {
+      return seleniumDriver.wait(function() {
+        return seleniumDriver.findElements(regions.todoItem.toggle)
+          .then(function(checkboxes) {
+            return checkboxes[index].getAttribute('checked');
+          }).then(function(value) {
+            return value === 'true';
+          });
+      });
+    });
+};
