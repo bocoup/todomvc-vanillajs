@@ -19,29 +19,29 @@ before(function(done) {
 });
 
 beforeEach(function() {
-  var driver = this.driver = new webdriver.Builder()
+  var seleniumDriver = this.seleniumDriver = new webdriver.Builder()
     .withCapabilities(webdriver.Capabilities.firefox())
     .build();
 
   this.timeout(20 * 1000);
 
-  return driver.get('http://localhost:' + port);
+  return seleniumDriver.get('http://localhost:' + port);
 });
 
 afterEach(function() {
-  return this.driver.quit();
+  return this.seleniumDriver.quit();
 });
 
 describe('item creation', function() {
   beforeEach(function() {
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    return this.driver.findElement(regions.newTodo)
+    return this.seleniumDriver.findElement(regions.newTodo)
       .then(function(inputElement) {
         return inputElement.sendKeys('buy candy', webdriver.Key.ENTER);
       }).then(function() {
-        return driver.wait(function() {
-          return driver.findElement(regions.newTodo)
+        return seleniumDriver.wait(function() {
+          return seleniumDriver.findElement(regions.newTodo)
             .then(function(inputElement) {
               return inputElement.getAttribute('value');
             }).then(function(inputValue) {
@@ -59,11 +59,11 @@ describe('item creation', function() {
     // 5. Make sure the text is correct (based on what we typed in #2)
 
     // These selectors are brittle:
-    //return this.driver.findElement(webdriver.By.css('#header input'));
-    //return this.driver.findElement(
+    //return this.seleniumDriver.findElement(webdriver.By.css('#header input'));
+    //return this.seleniumDriver.findElement(
     //  webdriver.By.css('html body section header input')
     //);
-    return this.driver.findElement(regions.todoItem.container)
+    return this.seleniumDriver.findElement(regions.todoItem.container)
       .then(function(todoItem) {
         return todoItem.getText();
       }).then(function(todoText) {
@@ -78,7 +78,7 @@ describe('item creation', function() {
     // 4. Get the text of "remaining item count" element
     // 5. Make sure the text is correct
 
-    return this.driver.findElement(regions.count)
+    return this.seleniumDriver.findElement(regions.count)
       .then(function(todoCount) {
         return todoCount.getText();
       }).then(function(count) {
@@ -93,14 +93,14 @@ describe('item creation', function() {
 
 describe('item deletion', function() {
   beforeEach(function() {
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    return this.driver.findElement(regions.newTodo)
+    return this.seleniumDriver.findElement(regions.newTodo)
       .then(function(inputElement) {
         return inputElement.sendKeys('buy candy', webdriver.Key.ENTER);
       }).then(function() {
-        return driver.wait(function() {
-          return driver.findElement(regions.newTodo)
+        return seleniumDriver.wait(function() {
+          return seleniumDriver.findElement(regions.newTodo)
             .then(function(inputElement) {
               return inputElement.getAttribute('value');
             }).then(function(inputValue) {
@@ -108,25 +108,25 @@ describe('item deletion', function() {
             });
         });
       }).then(function() {
-        return driver.findElement(regions.todoItem.container);
+        return seleniumDriver.findElement(regions.todoItem.container);
       }).then(function(todoItem) {
-        return driver.actions()
+        return seleniumDriver.actions()
           .mouseMove(todoItem)
           .perform();
       }).then(function() {
-        return driver.wait(function() {
-          return driver.findElement(regions.todoItem.destroyBtn)
+        return seleniumDriver.wait(function() {
+          return seleniumDriver.findElement(regions.todoItem.destroyBtn)
             .then(function(destroyBtn) {
               return destroyBtn.isDisplayed();
             });
         });
       }).then(function() {
-        return driver.findElement(regions.todoItem.destroyBtn);
+        return seleniumDriver.findElement(regions.todoItem.destroyBtn);
       }).then(function(destroyBtn) {
         return destroyBtn.click();
       }).then(function() {
-        return driver.wait(function() {
-          return driver.findElements(regions.todoItem.container)
+        return seleniumDriver.wait(function() {
+          return seleniumDriver.findElements(regions.todoItem.container)
             .then(function(todoItems) {
               return todoItems.length === 0;
             });
@@ -135,22 +135,22 @@ describe('item deletion', function() {
   });
 
   it('removes item from Todo list', function() {
-    // 1. `driver.findElement` to get the Todo item from the Todo list
-    // 2. `driver.actions().mouseMove(todoItemElement).perform()`
+    // 1. `seleniumDriver.findElement` to get the Todo item from the Todo list
+    // 2. `seleniumDriver.actions().mouseMove(todoItemElement).perform()`
     // 3. `findelement` to get the delete button
     // 4. `WebElement#click()`
-    // 5. `driver.findElements()` to get the Todo items
+    // 5. `seleniumDriver.findElements()` to get the Todo items
     // 6. Make sure there are none!
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    return driver.findElements(regions.todoItem.container)
+    return seleniumDriver.findElements(regions.todoItem.container)
       .then(function(todoItems) {
         assert.equal(todoItems.length, 0);
       });
   });
 
   it('hides the counter', function() {
-    //return this.driver.findElement(webdriver.By.css('#todo-count'))
+    //return this.seleniumDriver.findElement(webdriver.By.css('#todo-count'))
     //  .then(function(todoCount) {
     //    return todoCount.isDisplayed();
     //  }).then(function(isDisplayed) {
@@ -162,7 +162,7 @@ describe('item deletion', function() {
     // just hiding it). You might define a generic `canUserSee` method to
     // account for *both* cases (be careful, though: this method is susceptible
     // to false positives).
-    return this.driver.canUserSee(regions.count)
+    return this.seleniumDriver.canUserSee(regions.count)
       .then(function(userCanSee) {
         assert.equal(userCanSee, false);
       });
@@ -176,21 +176,21 @@ describe('item deletion', function() {
  * not displayed, resolve with `false`. If it is displayed, resolve with
  * `true`.
  *
- * @param {webdriver.WebDriver} driver
+ * @param {webdriver.WebDriver} seleniumDriver
  * @param {webriver.Locator} locator
  *
  * @return {Promise} resolved with whether the user can see the specified
  *                   element or not
  */
 webdriver.WebDriver.prototype.canUserSee = function(locator) {
-  var driver = this;
+  var seleniumDriver = this;
   return this.isElementPresent(locator)
     .then(function(isPresent) {
       if (!isPresent) {
         return false;
       }
 
-      return driver.findElement(locator)
+      return seleniumDriver.findElement(locator)
         .then(function(element) {
           return element.isDisplayed();
         });
@@ -199,14 +199,14 @@ webdriver.WebDriver.prototype.canUserSee = function(locator) {
 
 describe('item updating', function() {
   beforeEach(function() {
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    return this.driver.findElement(regions.newTodo)
+    return this.seleniumDriver.findElement(regions.newTodo)
       .then(function(inputElement) {
         return inputElement.sendKeys('buy candy', webdriver.Key.ENTER);
       }).then(function() {
-        return driver.wait(function() {
-          return driver.findElement(regions.newTodo)
+        return seleniumDriver.wait(function() {
+          return seleniumDriver.findElement(regions.newTodo)
             .then(function(inputElement) {
               return inputElement.getAttribute('value');
             }).then(function(inputValue) {
@@ -217,28 +217,28 @@ describe('item updating', function() {
   });
 
   it('supports renaming', function() {
-    var driver = this.driver;
+    var seleniumDriver = this.seleniumDriver;
 
-    // 1. `driver.findElement` to get the Todo list item element
-    // 2. `driver.actions().doubleClick().sendKeys()` to update the text
-    // 3. `driver.findElement` to get the Todo list item element
+    // 1. `seleniumDriver.findElement` to get the Todo list item element
+    // 2. `seleniumDriver.actions().doubleClick().sendKeys()` to update the text
+    // 3. `seleniumDriver.findElement` to get the Todo list item element
     // 4. `getText` to get the text
     // 5. `assert.equal` to verify that the text has been updated correctly
-    return driver.findElement(regions.todoItem.label)
+    return seleniumDriver.findElement(regions.todoItem.label)
       .then(function(todoLabel) {
-        return driver.actions()
+        return seleniumDriver.actions()
           .doubleClick(todoLabel)
           .sendKeys(' tonight! Calaveras, preferably', webdriver.Key.ENTER)
           .perform();
       }).then(function() {
-        return driver.wait(function() {
-          return driver.isElementPresent(regions.todoItem.editing)
+        return seleniumDriver.wait(function() {
+          return seleniumDriver.isElementPresent(regions.todoItem.editing)
             .then(function(isPresent) {
               return !isPresent;
             });
         });
       }).then(function() {
-        return driver.findElement(regions.todoItem.label);
+        return seleniumDriver.findElement(regions.todoItem.label);
       }).then(function(todoLabel) {
         return todoLabel.getText();
       }).then(function(todoText) {
@@ -247,18 +247,18 @@ describe('item updating', function() {
   });
 
   it('supports task completion', function() {
-    var driver = this.driver;
-    // 1. `driver.findElement` to get the Todo list item checkbox
-    // 2. `driver.actions.click` to complete the task
-    // 3. `driver.findElements` to get an array of all *completed* tasks
+    var seleniumDriver = this.seleniumDriver;
+    // 1. `seleniumDriver.findElement` to get the Todo list item checkbox
+    // 2. `seleniumDriver.actions.click` to complete the task
+    // 3. `seleniumDriver.findElements` to get an array of all *completed* tasks
     // 4. `assert.equal` to verify that there are the correct number of
     //    completed tasks
-    return driver.findElement(regions.todoItem.toggle)
+    return seleniumDriver.findElement(regions.todoItem.toggle)
       .then(function(checkbox) {
         return checkbox.click();
       }).then(function() {
-        return driver.wait(function() {
-          return driver.findElement(regions.todoItem.toggle)
+        return seleniumDriver.wait(function() {
+          return seleniumDriver.findElement(regions.todoItem.toggle)
             .then(function(checkbox) {
               return checkbox.getAttribute('checked');
             }).then(function(value) {
@@ -266,7 +266,7 @@ describe('item updating', function() {
             });
         });
       }).then(function() {
-        return driver.findElements(regions.todoItem.completed);
+        return seleniumDriver.findElements(regions.todoItem.completed);
       }).then(function(completedListItems) {
         assert.equal(completedListItems.length, 1);
       });
