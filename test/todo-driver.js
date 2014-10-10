@@ -45,3 +45,24 @@ TodoDriver.prototype.readItem = function(index) {
       return todoItems[index].getText();
     });
 };
+
+TodoDriver.prototype.countRemaining = function() {
+  return this.seleniumDriver.findElement(regions.count)
+    .then(function(todoCount) {
+      return todoCount.getText();
+    }, function() {
+      throw new Error(
+        'Could not find "Remaining Items" label', regions.count
+      );
+    }).then(function(countText) {
+      var match = countText.match(/(\d+)/);
+
+      if (match === null) {
+        throw new Error(
+          'Could not find numeric value in "Remaing Items" label'
+        );
+      }
+
+      return match[1];
+    });
+};

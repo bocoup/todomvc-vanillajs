@@ -47,20 +47,9 @@ describe('item creation', function() {
   });
 
   it('updates the counter for remaining items when a new Todo item is created', function() {
-    // 1. Get input element
-    // 2. Type into input element
-    // 3. Get "remaining item count" element
-    // 4. Get the text of "remaining item count" element
-    // 5. Make sure the text is correct
-
-    return this.seleniumDriver.findElement(regions.count)
-      .then(function(todoCount) {
-        return todoCount.getText();
-      }).then(function(count) {
-        var match = count.match(/(\d+)/);
-
-        assert.ok(match, 'Counter contains decimal number');
-        assert.strictEqual(match[1], '1');
+    return this.todoDriver.countRemaining()
+      .then(function(count) {
+        assert.strictEqual(count, '1');
       });
   });
 
