@@ -255,6 +255,15 @@ describe('item updating', function() {
       .then(function(checkbox) {
         return checkbox.click();
       }).then(function() {
+        return driver.wait(function() {
+          return driver.findElement(webdriver.By.css('#todo-list .toggle'))
+            .then(function(checkbox) {
+              return checkbox.getAttribute('checked');
+            }).then(function(value) {
+              return value === 'true';
+            });
+        });
+      }).then(function() {
         return driver.findElements(webdriver.By.css('#todo-list .completed'));
       }).then(function(completedListItems) {
         assert.equal(completedListItems.length, 1);
