@@ -6,6 +6,7 @@ var webdriver = require('selenium-webdriver');
 var chrome = require('selenium-webdriver/chrome');
 var chromeDriver = require('selenium-chromedriver');
 
+var TodoDriver = require('./todo-driver');
 var regions = require('./regions.json');
 var port = process.env.NODE_TEST_PORT || 8002;
 
@@ -22,6 +23,7 @@ beforeEach(function() {
   var seleniumDriver = this.seleniumDriver = new webdriver.Builder()
     .withCapabilities(webdriver.Capabilities.firefox())
     .build();
+  var todoDriver = this.todoDriver = new TodoDriver(seleniumDriver);
 
   this.timeout(20 * 1000);
 
@@ -34,21 +36,7 @@ afterEach(function() {
 
 describe('item creation', function() {
   beforeEach(function() {
-    var seleniumDriver = this.seleniumDriver;
-
-    return this.seleniumDriver.findElement(regions.newTodo)
-      .then(function(inputElement) {
-        return inputElement.sendKeys('buy candy', webdriver.Key.ENTER);
-      }).then(function() {
-        return seleniumDriver.wait(function() {
-          return seleniumDriver.findElement(regions.newTodo)
-            .then(function(inputElement) {
-              return inputElement.getAttribute('value');
-            }).then(function(inputValue) {
-              return inputValue === '';
-            });
-        });
-      });
+    return this.todoDriver.create('buy candy');
   });
 
   it('inserts new Todo items to Todo list', function() {
@@ -95,19 +83,8 @@ describe('item deletion', function() {
   beforeEach(function() {
     var seleniumDriver = this.seleniumDriver;
 
-    return this.seleniumDriver.findElement(regions.newTodo)
-      .then(function(inputElement) {
-        return inputElement.sendKeys('buy candy', webdriver.Key.ENTER);
-      }).then(function() {
-        return seleniumDriver.wait(function() {
-          return seleniumDriver.findElement(regions.newTodo)
-            .then(function(inputElement) {
-              return inputElement.getAttribute('value');
-            }).then(function(inputValue) {
-              return inputValue === '';
-            });
-        });
-      }).then(function() {
+    return this.todoDriver.create('buy candy')
+      .then(function() {
         return seleniumDriver.findElement(regions.todoItem.container);
       }).then(function(todoItem) {
         return seleniumDriver.actions()
@@ -201,19 +178,7 @@ describe('item updating', function() {
   beforeEach(function() {
     var seleniumDriver = this.seleniumDriver;
 
-    return this.seleniumDriver.findElement(regions.newTodo)
-      .then(function(inputElement) {
-        return inputElement.sendKeys('buy candy', webdriver.Key.ENTER);
-      }).then(function() {
-        return seleniumDriver.wait(function() {
-          return seleniumDriver.findElement(regions.newTodo)
-            .then(function(inputElement) {
-              return inputElement.getAttribute('value');
-            }).then(function(inputValue) {
-              return inputValue === '';
-            });
-        });
-      });
+    return this.todoDriver.create('buy candy');
   });
 
   it('supports renaming', function() {
