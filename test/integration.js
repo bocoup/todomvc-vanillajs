@@ -64,6 +64,15 @@ describe('item creation', function() {
       });
   });
 
+  it('appends additional items to bottom of list', function() {
+    var todoDriver = this.todoDriver;
+    return this.todoDriver.create('buy more candy')
+      .then(function() {
+        return todoDriver.readItem(1);
+      }).then(function(todoText) {
+        assert.equal('buy more candy', todoText);
+      });
+  });
 });
 
 describe('item deletion', function() {
