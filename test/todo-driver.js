@@ -66,3 +66,42 @@ TodoDriver.prototype.countRemaining = function() {
       return match[1];
     });
 };
+
+TodoDriver.prototype.delete = function(index) {
+  var seleniumDriver = this.seleniumDriver;
+  var originalCount;
+
+  return seleniumDriver.findElements(regions.todoItem.container)
+    .then(function(todoItems) {
+      originalCount = todoItems.length;
+
+      if (index >= originalCount) {
+        throw new Error(
+          'Cannot delete item at postion ' + index + ': only ' +
+          originalCount + ' exist.'
+        );
+      }
+
+      return seleniumDriver.actions()
+        .mouseMove(todoItems[index])
+        .perform();
+    }).then(function() {
+      return seleniumDriver.wait(function() {
+        return seleniumDriver.findElements(regions.todoItem.destroyBtn)
+          .then(function(destroyBtns) {
+            return destroyBtns[index].isDisplayed();
+          });
+      });
+    }).then(function() {
+      return seleniumDriver.findElements(regions.todoItem.destroyBtn);
+    }).then(function(destroyBtns) {
+      return destroyBtns[index].click();
+    }).then(function() {
+      return seleniumDriver.wait(function() {
+        return seleniumDriver.findElements(regions.todoItem.container)
+          .then(function(todoItems) {
+            return todoItems.length === originalCount - 1;
+          });
+      });
+    });
+};

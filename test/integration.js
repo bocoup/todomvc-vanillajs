@@ -67,32 +67,11 @@ describe('item creation', function() {
 describe('item deletion', function() {
   beforeEach(function() {
     var seleniumDriver = this.seleniumDriver;
+    var todoDriver = this.todoDriver;
 
     return this.todoDriver.create('buy candy')
       .then(function() {
-        return seleniumDriver.findElement(regions.todoItem.container);
-      }).then(function(todoItem) {
-        return seleniumDriver.actions()
-          .mouseMove(todoItem)
-          .perform();
-      }).then(function() {
-        return seleniumDriver.wait(function() {
-          return seleniumDriver.findElement(regions.todoItem.destroyBtn)
-            .then(function(destroyBtn) {
-              return destroyBtn.isDisplayed();
-            });
-        });
-      }).then(function() {
-        return seleniumDriver.findElement(regions.todoItem.destroyBtn);
-      }).then(function(destroyBtn) {
-        return destroyBtn.click();
-      }).then(function() {
-        return seleniumDriver.wait(function() {
-          return seleniumDriver.findElements(regions.todoItem.container)
-            .then(function(todoItems) {
-              return todoItems.length === 0;
-            });
-        });
+        return todoDriver.delete(0);
       });
   });
 
