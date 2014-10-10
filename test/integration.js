@@ -31,9 +31,20 @@ afterEach(function() {
 
 describe('item creation', function() {
   beforeEach(function() {
+    var driver = this.driver;
+
     return this.driver.findElement(webdriver.By.css('#new-todo'))
       .then(function(inputElement) {
         return inputElement.sendKeys('buy candy', webdriver.Key.ENTER);
+      }).then(function() {
+        return driver.wait(function() {
+          return driver.findElement(webdriver.By.css('#new-todo'))
+            .then(function(inputElement) {
+              return inputElement.getAttribute('value');
+            }).then(function(inputValue) {
+              return inputValue === '';
+            });
+        });
       });
   });
 
@@ -84,6 +95,15 @@ describe('item deletion', function() {
     return this.driver.findElement(webdriver.By.css('#new-todo'))
       .then(function(inputElement) {
         return inputElement.sendKeys('buy candy', webdriver.Key.ENTER);
+      }).then(function() {
+        return driver.wait(function() {
+          return driver.findElement(webdriver.By.css('#new-todo'))
+            .then(function(inputElement) {
+              return inputElement.getAttribute('value');
+            }).then(function(inputValue) {
+              return inputValue === '';
+            });
+        });
       }).then(function() {
         return driver.findElement(webdriver.By.css('#todo-list li'));
       }).then(function(todoItem) {
@@ -162,9 +182,20 @@ webdriver.WebDriver.prototype.canUserSee = function(locator) {
 
 describe('item updating', function() {
   beforeEach(function() {
+    var driver = this.driver;
+
     return this.driver.findElement(webdriver.By.css('#new-todo'))
       .then(function(inputElement) {
         return inputElement.sendKeys('buy candy', webdriver.Key.ENTER);
+      }).then(function() {
+        return driver.wait(function() {
+          return driver.findElement(webdriver.By.css('#new-todo'))
+            .then(function(inputElement) {
+              return inputElement.getAttribute('value');
+            }).then(function(inputValue) {
+              return inputValue === '';
+            });
+        });
       });
   });
 
