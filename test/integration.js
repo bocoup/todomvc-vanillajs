@@ -228,6 +228,14 @@ describe('item updating', function() {
           .sendKeys(' tonight! Calaveras, preferably', webdriver.Key.ENTER)
           .perform();
       }).then(function() {
+        return driver.wait(function() {
+          return driver.isElementPresent(
+              webdriver.By.css('#todo-list .editing')
+            ).then(function(isPresent) {
+              return !isPresent;
+            });
+        });
+      }).then(function() {
         return driver.findElement(webdriver.By.css('#todo-list label'));
       }).then(function(todoLabel) {
         return todoLabel.getText();
