@@ -111,9 +111,23 @@ describe('item deletion', function() {
           .mouseMove(todoItem)
           .perform();
       }).then(function() {
+        return driver.wait(function() {
+          return driver.findElement(webdriver.By.css('#todo-list .destroy'))
+            .then(function(destroyBtn) {
+              return destroyBtn.isDisplayed();
+            });
+        });
+      }).then(function() {
         return driver.findElement(webdriver.By.css('#todo-list .destroy'));
       }).then(function(destroyBtn) {
         return destroyBtn.click();
+      }).then(function() {
+        return driver.wait(function() {
+          return driver.findElements(webdriver.By.css('#todo-list li'))
+            .then(function(todoItems) {
+              return todoItems.length === 0;
+            });
+        });
       });
   });
 
