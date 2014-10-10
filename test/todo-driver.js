@@ -27,3 +27,21 @@ TodoDriver.prototype.create = function(title) {
       });
     });
 };
+
+// 1. Get input element
+// 2. Type into input element
+// 3. Get Todo list item element
+// 4. Get the text of list item element
+// 5. Make sure the text is correct (based on what we typed in #2)
+
+// These selectors are brittle:
+//return this.seleniumDriver.findElement(webdriver.By.css('#header input'));
+//return this.seleniumDriver.findElement(
+//  webdriver.By.css('html body section header input')
+//);
+TodoDriver.prototype.readItem = function(index) {
+  return this.seleniumDriver.findElements(regions.todoItem.container)
+    .then(function(todoItems) {
+      return todoItems[index].getText();
+    });
+};

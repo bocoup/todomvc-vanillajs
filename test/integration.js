@@ -40,21 +40,8 @@ describe('item creation', function() {
   });
 
   it('inserts new Todo items to Todo list', function() {
-    // 1. Get input element
-    // 2. Type into input element
-    // 3. Get Todo list item element
-    // 4. Get the text of list item element
-    // 5. Make sure the text is correct (based on what we typed in #2)
-
-    // These selectors are brittle:
-    //return this.seleniumDriver.findElement(webdriver.By.css('#header input'));
-    //return this.seleniumDriver.findElement(
-    //  webdriver.By.css('html body section header input')
-    //);
-    return this.seleniumDriver.findElement(regions.todoItem.container)
-      .then(function(todoItem) {
-        return todoItem.getText();
-      }).then(function(todoText) {
+    return this.todoDriver.readItem(0)
+      .then(function(todoText) {
         assert.equal(todoText, 'buy candy');
       });
   });
@@ -183,6 +170,7 @@ describe('item updating', function() {
 
   it('supports renaming', function() {
     var seleniumDriver = this.seleniumDriver;
+    var todoDriver = this.todoDriver;
 
     // 1. `seleniumDriver.findElement` to get the Todo list item element
     // 2. `seleniumDriver.actions().doubleClick().sendKeys()` to update the text
@@ -203,9 +191,7 @@ describe('item updating', function() {
             });
         });
       }).then(function() {
-        return seleniumDriver.findElement(regions.todoItem.label);
-      }).then(function(todoLabel) {
-        return todoLabel.getText();
+        return todoDriver.readItem(0);
       }).then(function(todoText) {
         assert.equal(todoText, 'buy candy tonight! Calaveras, preferably');
       });
