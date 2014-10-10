@@ -112,6 +112,12 @@
             },
             toggleAll: function () {
                 that.$toggleAll.checked = parameter.checked;
+
+                if (parameter.checked) {
+                  document.body.classList.add('congrats');
+                } else {
+                  document.body.classList.remove('congrats');
+                }
             },
             setFilter: function () {
                 that._setFilter(parameter);

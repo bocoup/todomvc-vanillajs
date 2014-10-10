@@ -124,3 +124,22 @@ TodoDriver.prototype.complete = function(index) {
       });
     });
 };
+
+/**
+ * @returns {Promise} a promise that resolves with:
+ *                    - `true` if the application is currently congratulating
+ *                      the user
+ *                    - `false` otherwise
+ */
+TodoDriver.prototype.isCongratulating = function() {
+  return this.seleniumDriver.findElement(regions.container)
+    .then(function(bodyElement) {
+      return bodyElement.getAttribute('className');
+    }).then(function(bodyClass) {
+      //return bodyClass.split(' ').indexOf('congrats') > -1;
+      var classArray = bodyClass.split(' ');
+      var congratsPosition = classArray.indexOf('congrats');
+
+      return congratsPosition > -1;
+    });
+};

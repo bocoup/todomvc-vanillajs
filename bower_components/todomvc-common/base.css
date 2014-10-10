@@ -32,6 +32,9 @@ body {
 	-o-font-smoothing: antialiased;
 	font-smoothing: antialiased;
 }
+body.congrats {
+  background: #a00 !important;
+}
 
 button,
 input[type="checkbox"] {

@@ -189,3 +189,45 @@ describe('item updating', function() {
       });
   });
 });
+
+describe.only('congrats', function() {
+  beforeEach(function() {
+    var todoDriver = this.todoDriver;
+    return todoDriver.create('buy sneakers')
+      .then(function() {
+        return todoDriver.create('pick up tickets');
+      }).then(function() {
+        return todoDriver.create('drive to party');
+      }).then(function() {
+        return todoDriver.isCongratulating();
+      }).then(function(isCongratulating) {
+        assert.equal(
+          isCongratulating,
+          false,
+          'Does not congratulate user initially'
+        );
+        return todoDriver.complete(0);
+      }).then(function() {
+        return todoDriver.complete(1);
+      }).then(function() {
+        return todoDriver.complete(2);
+      });
+  });
+  it('congratulates user when all existing tasks are completed', function() {
+    return this.todoDriver.isCongratulating()
+      .then(function(isCongratulating) {
+        assert(isCongratulating);
+      });
+  });
+
+  it('stops congratulating user when new tasks are added', function() {
+    var todoDriver = this.todoDriver;
+
+    return todoDriver.create('vacuum apartment')
+      .then(function() {
+        return todoDriver.isCongratulating();
+      }).then(function(isCongratulating) {
+        assert.equal(isCongratulating, false);
+      });
+  });
+});

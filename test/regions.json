@@ -1,4 +1,5 @@
 {
+  "container": "body",
   "newTodo": "#new-todo",
   "todoItem": {
     "container": "#todo-list li",
